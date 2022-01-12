@@ -51,3 +51,7 @@ spec:
             value: "auth"
           - name: spring.datasource.password
             value: "auth"
+          - name: spring.jpa.hibernate.ddl-auto
+            value: "create"  
+          - name: spring.jpa.generate-ddl
+            value: "true"  
