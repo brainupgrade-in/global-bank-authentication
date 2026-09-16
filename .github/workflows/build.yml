@@ -1,0 +1,29 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # JDK 8 is what this service currently targets. The Spring Boot 3 / JDK 25
+      # migration changes this value — that bump is part of the upgrade diff.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+
+      # Not ./mvnw: .mvn/wrapper/ was never committed to this repo, so the
+      # wrapper script cannot bootstrap. Runners ship Maven already.
+      - name: Build
+        run: mvn -B clean package
