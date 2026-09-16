@@ -4,24 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-
 import in.brainupgrade.authenticationservice.exceptionhandling.AppUserNotFoundException;
 import in.brainupgrade.authenticationservice.model.AppUser;
 import in.brainupgrade.authenticationservice.repository.UserRepository;
-import lombok.extern.slf4j.Slf4j;
 
 @Component
-@Slf4j
 public class LoginService {
-
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LoginService.class);
 	@Autowired
 	private JwtUtil jwtutil;
 	@Autowired
 	private BCryptPasswordEncoder encoder;
-
 	@Autowired
 	private UserRepository userRepository;
-
 	@Autowired
 	private CustomerDetailsService customerDetailservice;
 
@@ -37,10 +32,8 @@ public class LoginService {
 		String userid = "";
 		String role = "";
 		String token = "";
-
 		log.info("Password From DB-->{}", userdetails.getPassword());
 		log.info("Password From Request-->{}", encoder.encode(appuser.getPassword()));
-
 		if (userdetails != null && userdetails.getPassword().equals(appuser.getPassword())) {
 			userid = appuser.getUserid();
 			token = jwtutil.generateToken(userdetails);

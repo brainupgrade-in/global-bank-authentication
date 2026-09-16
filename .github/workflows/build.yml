@@ -15,12 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # JDK 8 is what this service currently targets. The Spring Boot 3 / JDK 25
-      # migration changes this value — that bump is part of the upgrade diff.
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '8'
+          java-version: '25'
           cache: maven
 
       # Not ./mvnw: .mvn/wrapper/ was never committed to this repo, so the

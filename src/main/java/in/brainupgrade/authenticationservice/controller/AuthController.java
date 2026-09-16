@@ -2,7 +2,6 @@ package in.brainupgrade.authenticationservice.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,41 +14,34 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-
 import in.brainupgrade.authenticationservice.exceptionhandling.AppUserNotFoundException;
 import in.brainupgrade.authenticationservice.model.AppUser;
 import in.brainupgrade.authenticationservice.model.AuthenticationResponse;
 import in.brainupgrade.authenticationservice.repository.UserRepository;
 import in.brainupgrade.authenticationservice.service.LoginService;
 import in.brainupgrade.authenticationservice.service.Validationservice;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 /**
  * Controller for Authentication microservice
- *
  */
-@Slf4j
 @RestController
 @CrossOrigin(origins = "*")
 public class AuthController {
-
+	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AuthController.class);
 	@Autowired
 	private UserRepository userRepository;
-
 	@Autowired
 	private LoginService loginService;
-
 	@Autowired
 	private Validationservice validationService;
 
 	/**
 	 * The health method to check app
-	 *
 	 */
 	@GetMapping("/health")
-	@ApiOperation(value = "Checks the health of Authentication microservice")
+	@Operation(summary = "Checks the health of Authentication microservice")
 	public ResponseEntity<String> healthCheckup() {
 		log.info("Health Check for Authentication Microservice");
 		log.info("health checkup ----->{}", "up");
@@ -65,10 +57,8 @@ public class AuthController {
 	 * @throws AppUserNotFoundException
 	 */
 	@PostMapping("/login")
-	@ApiOperation(value = "Login user", notes = "In order to login the user has to provide its credentials")
-	public ResponseEntity<AppUser> login(
-			@ApiParam(value = "User login credentials", required = true) @RequestBody AppUser appUserloginCredentials)
-			throws UsernameNotFoundException, AppUserNotFoundException {
+	@Operation(summary = "Login user", description = "In order to login the user has to provide its credentials")
+	public ResponseEntity<AppUser> login(@Parameter(description = "User login credentials", required = true) @RequestBody AppUser appUserloginCredentials) throws UsernameNotFoundException, AppUserNotFoundException {
 		AppUser user = loginService.userLogin(appUserloginCredentials);
 		log.info("Credentials ----->{}", user);
 		return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
@@ -81,9 +71,8 @@ public class AuthController {
 	 * @return
 	 */
 	@GetMapping("/validateToken")
-	@ApiOperation(value = "Validate token", notes = "Validates token ", response = AuthenticationResponse.class)
-	public AuthenticationResponse getValidity(
-			@ApiParam(value = "Token for validation", required = true) @RequestHeader("Authorization") final String token) {
+	@Operation(summary = "Validate token", description = "Validates token ")
+	public AuthenticationResponse getValidity(@Parameter(description = "Token for validation", required = true) @RequestHeader("Authorization") final String token) {
 		log.info("Token Validation ----->{}", token);
 		return validationService.validate(token);
 	}
@@ -95,9 +84,8 @@ public class AuthController {
 	 * @return
 	 */
 	@PostMapping("/createUser")
-	@ApiOperation(value = "Create a new user", notes = "Creates user by providing valid login credentials")
-	public ResponseEntity<?> createUser(
-			@ApiParam(value = "User credentials", required = true) @RequestBody AppUser appUserCredentials) {
+	@Operation(summary = "Create a new user", description = "Creates user by providing valid login credentials")
+	public ResponseEntity<?> createUser(@Parameter(description = "User credentials", required = true) @RequestBody AppUser appUserCredentials) {
 		AppUser createduser = null;
 		try {
 			createduser = userRepository.save(appUserCredentials);
@@ -106,7 +94,6 @@ public class AuthController {
 		}
 		log.info("user creation---->{}", createduser);
 		return new ResponseEntity<>(createduser, HttpStatus.CREATED);
-
 	}
 
 	/**
@@ -115,17 +102,15 @@ public class AuthController {
 	 * @param token
 	 * @return
 	 */
-	@PreAuthorize("hasRole('ROLE_EMPLOYEE')")
+	@PreAuthorize("hasRole(\'ROLE_EMPLOYEE\')")
 	@GetMapping("/find")
-	@ApiOperation(value = "Get all users", notes = "EMPLOYEE role required for this operation")
-	public ResponseEntity<List<AppUser>> findUsers(
-			@ApiParam(value = "Token for authentication passed in header", required = true) @RequestHeader("Authorization") final String token) {
+	@Operation(summary = "Get all users", description = "EMPLOYEE role required for this operation")
+	public ResponseEntity<List<AppUser>> findUsers(@Parameter(description = "Token for authentication passed in header", required = true) @RequestHeader("Authorization") final String token) {
 		List<AppUser> createduser = new ArrayList<>();
 		List<AppUser> findAll = userRepository.findAll();
 		findAll.forEach(emp -> createduser.add(emp));
 		log.info("All Users  ----->{}", findAll);
 		return new ResponseEntity<>(createduser, HttpStatus.CREATED);
-
 	}
 
 	/**
@@ -135,9 +120,8 @@ public class AuthController {
 	 * @return
 	 */
 	@GetMapping("/role/{id}")
-	@ApiOperation(value = "Get role", notes = "Pass id of the user whose role is to be retrieved")
-	public String getRole(@ApiParam(value = "id of user", required = true) @PathVariable("id") String id) {
+	@Operation(summary = "Get role", description = "Pass id of the user whose role is to be retrieved")
+	public String getRole(@Parameter(description = "id of user", required = true) @PathVariable("id") String id) {
 		return userRepository.findById(id).get().getRole();
 	}
-
 }
